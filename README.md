@@ -99,7 +99,7 @@ docker rm marketplace-app
 
 - **API Gateway**: Единая точка входа, скрывающая внутреннее устройство системы.
 - **Message Broker**: Обеспечивает асинхронную передачу событий между доменами.
-- **Isolated DBs**: У каждого сервиса своя БД (PostgreSQL или Redis).
+- **Isolated DBs**: У каждого сервиса своя БД (PostgreSQL, Redis или MongoDB).
 
 ## Итог
 
