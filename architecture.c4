@@ -1,0 +1,94 @@
+specification {
+  element actor
+  element component
+  element database
+  element queue
+}
+
+model {
+  customer = actor 'Покупатель' {
+    description 'Пользователь маркетплейса'
+  }
+
+  gateway = component 'API Gateway' {
+    description 'Точка входа для всех запросов'
+  }
+
+  auth_service = component 'Auth Service' {
+    description 'Обрабатывает регистрацию и вход'
+  }
+  auth_db = database 'Auth DB' {
+    description 'PostgreSQL'
+  }
+
+  catalog_service = component 'Catalog Service' {
+    description 'Управляет товарами и категориями'
+  }
+  catalog_db = database 'Catalog DB' {
+    description 'PostgreSQL'
+  }
+
+  order_service = component 'Order Service' {
+    description 'Обрабатывает заказы и корзину'
+  }
+  order_db = database 'Order DB' {
+    description 'PostgreSQL'
+  }
+
+  payment_service = component 'Payment Service' {
+    description 'Обрабатывает платежи'
+  }
+  payment_db = database 'Payment DB' {
+    description 'PostgreSQL'
+  }
+
+  feed_service = component 'Feed Service' {
+    description 'Логика персонализации и рекомендаций'
+  }
+  feed_db = database 'Feed DB' {
+    description 'Redis (Кэш ленты)'
+  }
+
+  message_broker = queue 'Message Broker' {
+    description 'Kafka / RabbitMQ (Асинхронные события)'
+  }
+
+  notification_service = component 'Notification Service' {
+    description 'Отправка Email/Push уведомлений'
+  }
+  notification_db = database 'Notification DB' {
+    description 'MongoDB'
+  }
+
+
+
+  customer -> gateway 'Использует мобильное/веб приложение'
+  gateway -> auth_service 'Аутентифицирует запросы'
+  gateway -> catalog_service 'Просматривает товары'
+  gateway -> order_service 'Размещает заказы'
+
+  auth_service -> auth_db 'Чтение/Запись данных пользователя'
+  catalog_service -> catalog_db 'Чтение/Запись данных о товарах'
+  order_service -> order_db 'Чтение/Запись данных заказов'
+
+  order_service -> payment_service 'Инициирует платеж'
+  payment_service -> payment_db 'Записывает транзакции'
+
+  gateway -> feed_service 'Запрашивает ленту'
+  feed_service -> feed_db 'Получает кэшированные данные'
+
+  catalog_service -> message_broker 'Событие: Товар обновлен'
+  message_broker -> feed_service 'Обновление рекомендаций'
+
+  order_service -> message_broker 'Событие: Заказ создан'
+  message_broker -> notification_service 'Отправка уведомления'
+  notification_service -> notification_db 'Чтение/Запись шаблонов и логов'
+}
+
+views {
+  view container_view {
+    title 'Контейнерная диаграмма Маркетплейса'
+    include *
+    autoLayout TopBottom
+  }
+}
